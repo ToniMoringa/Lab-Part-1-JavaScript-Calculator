@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8-Bit Retro Calculator 🎮</title>
+    <!-- Press Start 2P - Classic retro gaming font -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator-container">
+        <!-- Title Bar with minimize and exit buttons-->
+        <div class="title-bar">
+            <div class="app-title">
+                 JAVASCRIPT CALCULATOR
+            </div>
+            <div class="window-controls">
+                <!-- Non-functional minimize button -->
+                <div class="window-btn minimize-btn"  onclick="return false;">−</div>
+                <!-- Non-functional close button -->
+                <div class="window-btn close-btn"  onclick="return false;">✕</div>
+            </div>
+        </div>
+
+        <!-- Screen display -->
+        <div class="display">
+            <input type="text" id="screen" disabled placeholder="0">
+        </div>
+
+        <div class="buttons">
+            <!-- AC button -->
+            <button onclick="clearScreen()" class="btn-special">AC</button>
+            <!-- UNDO button (replaces duplicate history buttons) -->
+            <button onclick="undoLastInput()" class="btn-undo" title="Undo last input">⌫</button>
+            <!-- History toggle button -->
+            <button onclick="toggleHistoryPanel()" class="btn-special">📜</button>
+            <button onclick="appendOperator('/')" class="btn-op">÷</button>
+            
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button onclick="appendOperator('*')" class="btn-op">×</button>
+            
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button onclick="appendOperator('-')" class="btn-op">−</button>
+            
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button onclick="appendOperator('+')" class="btn-op">+</button>
+            
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button onclick="calculatePercentage()" class="btn-percent">%</button>
+            <button onclick="calculate()" class="btn-equal">=</button>
+        </div>
+        
+        <!-- History Panel -->
+        <div id="history-panel" style="display: none;"></div>
+    </div>
+
+    <!-- Clear History Modal -->
+    <div id="clearModal" class="modal">
+        <div class="modal-content">
+            <h3>🗑️ CLEAR HISTORY</h3>
+            <p>Delete all calculations?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal()">CANCEL</button>
+                <button class="modal-btn ok" onclick="clearAllHistory()">OK</button>
+            </div>
+        </div>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
