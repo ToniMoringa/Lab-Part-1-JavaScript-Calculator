@@ -3,76 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8-Bit Retro Calculator 🎮</title>
-    <!-- retro gaming font -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>CALCULATOR</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="calculator-container">
-        <!-- Title Bar with minimize and exit buttons-->
+        <!-- Window Title Bar -->
         <div class="title-bar">
-            <div class="app-title">
-                 JAVASCRIPT CALCULATOR
-            </div>
+            <div class="app-title">JAVASCRIPT CALCULATOR</div>
             <div class="window-controls">
-                <!-- Non-functional minimize button -->
-                <div class="window-btn minimize-btn"  onclick="return false;">−</div>
-                <!-- Non-functional close button -->
-                <div class="window-btn close-btn"  onclick="return false;">✕</div>
+                <button class="window-btn minimize-btn" title="Minimize" data-action="minimize">_</button>
+                <button class="window-btn close-btn" title="Close" data-action="close">×</button>
             </div>
         </div>
 
-        <!-- Screen display -->
+        <!-- Display -->
         <div class="display">
-            <input type="text" id="screen" disabled placeholder="0">
+            <input type="text" id="screen" data-display readonly value="0">
         </div>
 
+        <!-- Buttons Grid -->
         <div class="buttons">
-            <!-- AC button -->
-            <button onclick="clearScreen()" class="btn-special">AC</button>
-            <!-- UNDO button (replaces duplicate history buttons) -->
-            <button onclick="undoLastInput()" class="btn-undo" title="Undo last input">⌫</button>
-            <!-- History toggle button -->
-            <button onclick="toggleHistoryPanel()" class="btn-special">📜</button>
-            <button onclick="appendOperator('/')" class="btn-op">÷</button>
+            <!-- Row 1 -->
+            <button data-number="7">7</button>
+            <button data-number="8">8</button>
+            <button data-number="9">9</button>
+            <button data-operation="/" class="btn-op">/</button>
             
-            <button onclick="appendNumber('7')">7</button>
-            <button onclick="appendNumber('8')">8</button>
-            <button onclick="appendNumber('9')">9</button>
-            <button onclick="appendOperator('*')" class="btn-op">×</button>
+            <!-- Row 2 -->
+            <button data-number="4">4</button>
+            <button data-number="5">5</button>
+            <button data-number="6">6</button>
+            <button data-operation="*" class="btn-op">*</button>
             
-            <button onclick="appendNumber('4')">4</button>
-            <button onclick="appendNumber('5')">5</button>
-            <button onclick="appendNumber('6')">6</button>
-            <button onclick="appendOperator('-')" class="btn-op">−</button>
+            <!-- Row 3 -->
+            <button data-number="1">1</button>
+            <button data-number="2">2</button>
+            <button data-number="3">3</button>
+            <button data-operation="-" class="btn-op">-</button>
             
-            <button onclick="appendNumber('1')">1</button>
-            <button onclick="appendNumber('2')">2</button>
-            <button onclick="appendNumber('3')">3</button>
-            <button onclick="appendOperator('+')" class="btn-op">+</button>
+            <!-- Row 4 -->
+            <button data-number="0">0</button>
+            <button data-number="00">00</button>
+            <button data-number=".">.</button>
+            <button data-operation="+" class="btn-op">+</button>
             
-            <button onclick="appendNumber('0')">0</button>
-            <button onclick="appendNumber('.')">.</button>
-            <button onclick="calculatePercentage()" class="btn-percent">%</button>
-            <button onclick="calculate()" class="btn-equal">=</button>
+            <!-- Row 5 - Special Buttons -->
+            <button data-action="clear" class="btn-special">C</button>
+            <button data-action="delete" class="btn-special">⌫</button>
+            <button data-action="history" class="btn-special">HIST</button>
+            <button data-action="calculate" class="btn-equal">=</button>
         </div>
-        
+
         <!-- History Panel -->
-        <div id="history-panel" style="display: none;"></div>
+        <div id="history-panel" data-history-panel>
+            <div class="history-header">
+                <span>📋 HISTORY</span>
+                <button class="clear-all-btn" data-action="clear-history">CLEAR ALL</button>
+            </div>
+            <div id="history-list" data-history-list></div>
+        </div>
     </div>
 
-    <!-- Clear History Modal -->
-    <div id="clearModal" class="modal">
+    <!-- Confirmation Modal -->
+    <div id="clearModal" class="modal" data-modal>
         <div class="modal-content">
-            <h3>🗑️ CLEAR HISTORY</h3>
-            <p>Delete all calculations?</p>
+            <h3>⚠️ CLEAR HISTORY</h3>
+            <p>Are you sure you want to delete all history?</p>
             <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeModal()">CANCEL</button>
-                <button class="modal-btn ok" onclick="clearAllHistory()">OK</button>
+                <button class="modal-btn cancel" data-modal-cancel>CANCEL</button>
+                <button class="modal-btn ok" data-modal-confirm>OK</button>
             </div>
         </div>
     </div>
+
     <script src="index.js"></script>
 </body>
 </html>

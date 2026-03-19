@@ -1,179 +1,278 @@
+/**
+ * Calculator with Data Attribute Event Handling
+ * All functionality is attached via data attributes
+ */
 
-        let calculationHistory = JSON.parse(localStorage.getItem('calcHistory')) || [];
-        let currentInput = "";
-        let historyPanelVisible = false;
+class Calculator {
+    constructor() {
+        this.currentInput = "";
+        this.calculationHistory = JSON.parse(localStorage.getItem('calcHistory')) || [];
+        this.init();
+    }
 
-        // Save history to localStorage
-        function saveHistory() {
-            localStorage.setItem('calcHistory', JSON.stringify(calculationHistory));
-        }
+    init() {
+        // Get all elements with data attributes
+        this.displayElement = document.querySelector('[data-display]');
+        this.historyListElement = document.getElementById('history-list');
+        
+        // Initialize event listeners based on data attributes
+        this.setupNumberButtons();
+        this.setupOperationButtons();
+        this.setupActionButtons();
+        this.setupHistoryPanel();
+        
+        // Initial display update
+        this.updateScreen('0');
+        this.renderHistory();
+    }
 
-        function appendNumber(num) {
-            currentInput += num;
-            updateScreen();
-        }
-
-        function appendOperator(op) {
-            if (currentInput === "") return;
-            currentInput += ` ${op} `;
-            updateScreen();
-        }
-
-        function clearScreen() {
-            currentInput = "";
-            updateScreen();
-        }
-
-        function updateScreen() {
-            document.getElementById('screen').value = currentInput;
-        }
-
-        // NEW: Undo last input (backspace function)
-        function undoLastInput() {
-            if (currentInput.length > 0) {
-                // Remove last character
-                currentInput = currentInput.slice(0, -1);
-                updateScreen();
-            }
-        }
-
-        // PERCENTAGE FUNCTION
-        function calculatePercentage() {
-            if (currentInput === "") return;
-            
-            try {
-                const parts = currentInput.split(' ');
-                if (parts.length >= 3) {
-                    const lastNum = parseFloat(parts[parts.length - 1]);
-                    const percentage = lastNum / 100;
-                    parts[parts.length - 1] = percentage;
-                    currentInput = parts.join(' ');
-                } else {
-                    currentInput = (parseFloat(currentInput) / 100).toString();
-                }
-                updateScreen();
-            } catch (e) {
-                currentInput = "Error";
-                updateScreen();
-            }
-        }
-
-        // Calculate with auto-save
-        function calculate() {
-            try {
-                if (currentInput.includes('/ 0')) {
-                    throw new Error("DIV/0!");
-                }
-                
-                const result = eval(currentInput);
-                
-                const logEntry = { 
-                    expression: currentInput, 
-                    result: result,
-                    timestamp: new Date().toLocaleTimeString()
-                };
-                calculationHistory.push(logEntry);
-                saveHistory();
-                
-                currentInput = result.toString();
-                updateScreen();
-                
-                // Auto-show history panel briefly
-                if (!historyPanelVisible) {
-                    toggleHistoryPanel();
-                    setTimeout(() => toggleHistoryPanel(), 2000);
-                } else {
-                    displayHistory();
-                }
-                
-            } catch (e) {
-                currentInput = "Error";
-                updateScreen();
-            }
-        }
-
-        // Toggle history panel
-        function toggleHistoryPanel() {
-            historyPanelVisible = !historyPanelVisible;
-            const panel = document.getElementById('history-panel');
-            panel.style.display = historyPanelVisible ? 'block' : 'none';
-            if (historyPanelVisible) {
-                displayHistory();
-            }
-        }
-
-        // Display history
-        function displayHistory() {
-            const panel = document.getElementById('history-panel');
-            
-            if (calculationHistory.length === 0) {
-                panel.innerHTML = '<div class="empty-history">✨ NO HISTORY</div>';
-                return;
-            }
-
-            let historyHTML = `
-                <div class="history-header">
-                    <span>📋 HISTORY</span>
-                    <button class="clear-all-btn" onclick="showClearModal()">CLEAR</button>
-                </div>
-            `;
-            
-            [...calculationHistory].reverse().forEach((item, index) => {
-                const originalIndex = calculationHistory.length - 1 - index;
-                historyHTML += `
-                    <div class="history-item">
-                        <span onclick="recallHistory(${originalIndex})">${item.expression} = ${item.result}</span>
-                        <span class="delete-item" onclick="deleteHistoryItem(${originalIndex}); event.stopPropagation();">✕</span>
-                    </div>
-                `;
+    setupNumberButtons() {
+        // Find all elements with data-number attribute
+        document.querySelectorAll('[data-number]').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const number = e.target.getAttribute('data-number');
+                this.appendNumber(number);
             });
+        });
+    }
+
+    setupOperationButtons() {
+        // Find all elements with data-operation attribute
+        document.querySelectorAll('[data-operation]').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const operator = e.target.getAttribute('data-operation');
+                this.appendOperator(operator);
+            });
+        });
+    }
+
+    setupActionButtons() {
+        // Find all elements with data-action attribute
+        document.querySelectorAll('[data-action]').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const action = e.target.getAttribute('data-action');
+                this.handleAction(action);
+            });
+        });
+    }
+
+    setupHistoryPanel() {
+        // History panel and clear all button
+        const clearAllBtn = document.querySelector('[data-action="clear-history"]');
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', () => this.showClearModal());
+        }
+
+        // Modal buttons
+        const modal = document.querySelector('[data-modal]');
+        const cancelBtn = document.querySelector('[data-modal-cancel]');
+        const confirmBtn = document.querySelector('[data-modal-confirm]');
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => this.hideModal());
+        }
+
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => {
+                this.clearAllHistory();
+                this.hideModal();
+            });
+        }
+
+        // Window controls (non-functional, just for UI)
+        document.querySelectorAll('[data-action="minimize"], [data-action="close"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // These are just UI elements, no functionality needed
+                console.log('UI button clicked:', e.target.getAttribute('data-action'));
+            });
+        });
+    }
+
+    handleAction(action) {
+        switch(action) {
+            case 'clear':
+                this.clearScreen();
+                break;
+            case 'delete':
+                this.deleteLastCharacter();
+                break;
+            case 'history':
+                this.toggleHistory();
+                break;
+            case 'calculate':
+                this.calculate();
+                break;
+        }
+    }
+
+    appendNumber(num) {
+        // Prevent multiple decimals
+        if (num === "." && this.currentInput.includes(".")) return;
+        
+        // Handle 00
+        if (num === "00" && this.currentInput === "0") {
+            this.currentInput = "0";
+        } else if (this.currentInput === "0" && num !== ".") {
+            this.currentInput = num;
+        } else {
+            this.currentInput += num;
+        }
+        
+        this.updateScreen(this.currentInput || '0');
+    }
+
+    appendOperator(op) {
+        if (this.currentInput === "") return;
+        
+        const lastChar = this.currentInput.slice(-1);
+        if (['+', '-', '*', '/'].includes(lastChar)) {
+            // Replace last operator
+            this.currentInput = this.currentInput.slice(0, -1) + op;
+        } else {
+            this.currentInput += op;
+        }
+        
+        this.updateScreen(this.currentInput);
+    }
+
+    clearScreen() {
+        this.currentInput = "";
+        this.updateScreen('0');
+    }
+
+    deleteLastCharacter() {
+        this.currentInput = this.currentInput.slice(0, -1);
+        this.updateScreen(this.currentInput || '0');
+    }
+
+    calculate() {
+        if (!this.currentInput) return;
+
+        try {
+            // Sanitize input and calculate
+            let expression = this.currentInput.replace(/[^-()\d/*+.]/g, '');
+            let result = eval(expression);
             
-            panel.innerHTML = historyHTML;
+            // Format result
+            result = Math.round(result * 1000000) / 1000000;
+            
+            // Save to history
+            this.addToHistory(`${this.currentInput} = ${result}`);
+            
+            // Set current input to result
+            this.currentInput = result.toString();
+            this.updateScreen(this.currentInput);
+            
+        } catch (e) {
+            this.updateScreen('Error');
+            this.currentInput = "";
+            
+            // Reset after error
+            setTimeout(() => {
+                this.updateScreen('0');
+            }, 1500);
+        }
+    }
+
+    addToHistory(entry) {
+        this.calculationHistory.unshift(entry);
+        if (this.calculationHistory.length > 10) {
+            this.calculationHistory.pop();
+        }
+        this.saveHistory();
+        this.renderHistory();
+    }
+
+    renderHistory() {
+        if (!this.historyListElement) return;
+
+        if (this.calculationHistory.length === 0) {
+            this.historyListElement.innerHTML = '<div class="empty-history">No history yet</div>';
+            return;
         }
 
-        // Recall history
-        function recallHistory(index) {
-            if (calculationHistory[index]) {
-                currentInput = calculationHistory[index].result.toString();
-                updateScreen();
-            }
+        this.historyListElement.innerHTML = this.calculationHistory.map((entry, index) => `
+            <div class="history-item" data-history-index="${index}">
+                <span>${entry}</span>
+                <span class="delete-item" data-history-delete="${index}">🗑️</span>
+            </div>
+        `).join('');
+
+        // Add click handlers for history items
+        document.querySelectorAll('[data-history-index]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('delete-item')) {
+                    const index = item.getAttribute('data-history-index');
+                    this.loadHistoryItem(index);
+                }
+            });
+        });
+
+        // Add delete handlers
+        document.querySelectorAll('[data-history-delete]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = btn.getAttribute('data-history-delete');
+                this.deleteHistoryItem(index);
+            });
+        });
+    }
+
+    loadHistoryItem(index) {
+        const entry = this.calculationHistory[index];
+        if (entry) {
+            const expression = entry.split('=')[0].trim();
+            this.currentInput = expression;
+            this.updateScreen(expression);
         }
+    }
 
-        // Delete single history item
-        function deleteHistoryItem(index) {
-            calculationHistory.splice(index, 1);
-            saveHistory();
-            displayHistory();
+    deleteHistoryItem(index) {
+        this.calculationHistory.splice(index, 1);
+        this.saveHistory();
+        this.renderHistory();
+    }
+
+    clearAllHistory() {
+        this.calculationHistory = [];
+        this.saveHistory();
+        this.renderHistory();
+    }
+
+    saveHistory() {
+        localStorage.setItem('calcHistory', JSON.stringify(this.calculationHistory));
+    }
+
+    toggleHistory() {
+        const panel = document.querySelector('[data-history-panel]');
+        if (panel) {
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
+    }
 
-        // Show clear modal
-        function showClearModal() {
-            document.getElementById('clearModal').style.display = 'flex';
+    showClearModal() {
+        const modal = document.querySelector('[data-modal]');
+        if (modal) {
+            modal.style.display = 'flex';
         }
+    }
 
-        // Close modal
-        function closeModal() {
-            document.getElementById('clearModal').style.display = 'none';
+    hideModal() {
+        const modal = document.querySelector('[data-modal]');
+        if (modal) {
+            modal.style.display = 'none';
         }
+    }
 
-        // Clear all history
-        function clearAllHistory() {
-            calculationHistory = [];
-            saveHistory();
-            displayHistory();
-            closeModal();
+    updateScreen(value) {
+        if (this.displayElement) {
+            this.displayElement.value = value;
         }
+    }
+}
 
-        // Initialize
-        window.onload = function() {
-            updateScreen();
-        };
-
-        // Close modal if clicked outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('clearModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
-    
+// Initialize calculator when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new Calculator();
+});
