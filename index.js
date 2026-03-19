@@ -1,8 +1,6 @@
-/**
- * Calculator with Data Attribute Event Handling
- * All functionality is attached via data attributes
- */
+  // JavaScript Calculator 
 
+  // Memory of the calculator 
 class Calculator {
     constructor() {
         this.currentInput = "";
@@ -122,6 +120,7 @@ class Calculator {
         this.updateScreen(this.currentInput || '0');
     }
 
+     // APPEND OPERATOR 
     appendOperator(op) {
         if (this.currentInput === "") return;
         
@@ -130,68 +129,82 @@ class Calculator {
             // Replace last operator
             this.currentInput = this.currentInput.slice(0, -1) + op;
         } else {
+             // Just add operator to the end
             this.currentInput += op;
         }
-        
+        // Update the screen
         this.updateScreen(this.currentInput);
     }
 
+     // CLEAR SCREEN - Reset everything (C button)
     clearScreen() {
         this.currentInput = "";
         this.updateScreen('0');
     }
 
+    // DELETE LAST CHARACTER - Backspace button (⌫)
     deleteLastCharacter() {
         this.currentInput = this.currentInput.slice(0, -1);
         this.updateScreen(this.currentInput || '0');
     }
 
+    // CALCULATE 
+
     calculate() {
+         // If no calculation nothing is calculated
         if (!this.currentInput) return;
 
         try {
-            // Sanitize input and calculate
+            // math removing any unwanted characters that can break things
             let expression = this.currentInput.replace(/[^-()\d/*+.]/g, '');
+
+            // Calling to EVAL JavaScript's built-in calculator
             let result = eval(expression);
             
-            // Format result
+            // Round to 6 decimal places to avoid long decimals
             result = Math.round(result * 1000000) / 1000000;
             
-            // Save to history
+            // Save calculation to history
             this.addToHistory(`${this.currentInput} = ${result}`);
             
-            // Set current input to result
+            // Set result to new input 
             this.currentInput = result.toString();
             this.updateScreen(this.currentInput);
             
         } catch (e) {
+            // If something goes wrong like dividing by zero
             this.updateScreen('Error');
             this.currentInput = "";
             
-            // Reset after error
+            // Reset after error display
             setTimeout(() => {
                 this.updateScreen('0');
             }, 1500);
         }
     }
-
+    // Add to History saving calculations for later
     addToHistory(entry) {
+        // newest entry shows first
         this.calculationHistory.unshift(entry);
+        // Keep only last 10 calculations
         if (this.calculationHistory.length > 10) {
             this.calculationHistory.pop();
         }
+        // Save to browser memory 🧠
         this.saveHistory();
+        // Update screen
         this.renderHistory();
     }
-
+      //Show the history on screen
     renderHistory() {
+        // If history box doesn't exist, stop
         if (!this.historyListElement) return;
-
+       // If no history yet, show a friendly message
         if (this.calculationHistory.length === 0) {
             this.historyListElement.innerHTML = '<div class="empty-history">No history yet</div>';
             return;
         }
-
+        // Create HTML for each history item
         this.historyListElement.innerHTML = this.calculationHistory.map((entry, index) => `
             <div class="history-item" data-history-index="${index}">
                 <span>${entry}</span>
@@ -199,7 +212,7 @@ class Calculator {
             </div>
         `).join('');
 
-        // Add click handlers for history items
+        // Add click handlers for history items (calculations)to be clickable and reused
         document.querySelectorAll('[data-history-index]').forEach(item => {
             item.addEventListener('click', (e) => {
                 if (!e.target.classList.contains('delete-item')) {
@@ -209,7 +222,7 @@ class Calculator {
             });
         });
 
-        // Add delete handlers
+        // Add delete handlers to delete single history items
         document.querySelectorAll('[data-history-delete]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -218,7 +231,7 @@ class Calculator {
             });
         });
     }
-
+    // LOAD HISTORY ITEM - Put an old calculation back on screen
     loadHistoryItem(index) {
         const entry = this.calculationHistory[index];
         if (entry) {
@@ -227,44 +240,44 @@ class Calculator {
             this.updateScreen(expression);
         }
     }
-
+    // DELETE HISTORY ITEM - Remove one item from history
     deleteHistoryItem(index) {
         this.calculationHistory.splice(index, 1);
         this.saveHistory();
         this.renderHistory();
     }
-
+    // CLEAR ALL HISTORY - Delete everything!
     clearAllHistory() {
         this.calculationHistory = [];
         this.saveHistory();
         this.renderHistory();
     }
-
+    // SAVE HISTORY - Store history in browser's memory
     saveHistory() {
         localStorage.setItem('calcHistory', JSON.stringify(this.calculationHistory));
     }
-
+    // TOGGLE HISTORY - Show or hide the history panel
     toggleHistory() {
         const panel = document.querySelector('[data-history-panel]');
         if (panel) {
             panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
     }
-
+     // SHOW CLEAR MODAL - Pop up the "Are you sure?" window
     showClearModal() {
         const modal = document.querySelector('[data-modal]');
         if (modal) {
             modal.style.display = 'flex';
         }
     }
-
+     // HIDE MODAL - Close the popup window
     hideModal() {
         const modal = document.querySelector('[data-modal]');
         if (modal) {
             modal.style.display = 'none';
         }
     }
-
+     // UPDATE SCREEN
     updateScreen(value) {
         if (this.displayElement) {
             this.displayElement.value = value;
@@ -272,7 +285,7 @@ class Calculator {
     }
 }
 
-// Initialize calculator when DOM is fully loaded
+// Initialize calculator when webpage is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     new Calculator();
 });

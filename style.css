@@ -1,5 +1,5 @@
 
-        /* Pixel Art Background */
+        /* Pixel Art Bg */
         body {
             background-image: url('https://i.pinimg.com/1200x/75/b9/09/75b90938826638b0aff9c05d85b3de46.jpg');
             background-size: cover;
@@ -49,51 +49,58 @@
         }
 
         /* Window Controls - RECTANGLE like MS Paint */
-        .window-controls {
-            display: flex;
-            gap: 2px;
-        }
+.window-controls {
+    display: flex;
+    gap: 2px;
+}
 
-        .window-btn {
-            width: 28px;
-            height: 24px;
-            border: 2px solid #ff69b4;
-            background-color: #fff0f5;
-            color: #ff69b4;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Arial', sans-serif;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border-radius: 0;
-        }
+.window-btn {
+    width: 25px;
+    height: 22px; /* fit symbols properly */
+    border: 2px solid #ff69b4;
+    background-color: #fff0f5;
+    color: #ff69b4;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+    padding: 0; 
+    line-height: 1; 
+}
 
-        .window-btn:hover {
-            background-color: #ffb6c1;
-            color: white;
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(255, 105, 180, 0.4);
-            border-color: #ff1493;
-        }
+.minimize-btn {
+    font-size: 20px;
+    padding-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .window-btn:active {
-            transform: scale(1.05);
-            background-color: #ffb6c1;
-        }
+.close-btn {
+    font-size: 20px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .minimize-btn {
-            line-height: 1;
-            font-size: 20px;
-            padding-bottom: 4px;
-        }
+.window-btn:hover {
+    background-color: #ffb6c1;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(255, 105, 180, 0.4);
+    border-color: #ff1493;
+}
 
-        .close-btn {
-            font-size: 18px;
-        }
+.window-btn:active {
+    transform: scale(1.05);
+    background-color: #ffb6c1;
+}
 
         .display {
             background-color: #fff0f5;
@@ -105,7 +112,7 @@
             box-shadow: inset 0 2px 5px rgba(255, 105, 180, 0.2);
         }
 
-        /* SIMPLIFIED DISPLAY - Just the screen */
+        /* screen */
         #screen {
             width: 100%;
             border: none;
